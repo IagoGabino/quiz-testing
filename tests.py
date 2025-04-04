@@ -116,3 +116,27 @@ def test_generate_choice_id_after_removal():
     question.remove_choice_by_id(choice2.id)
     choice4 = question.add_choice('Escolha 4', False)
     assert choice4.id == choice3.id + 1
+
+@pytest.fixture
+def multiple_choice_question():
+    # cria uma questão com três escolhas: duas corretas e uma incorreta.
+    q = Question(title="Pergunta com múltiplas escolhas", points=5, max_selections=2)
+    q.add_choice("Opção A", False)  # ID 1
+    q.add_choice("Opção B", True)   # ID 2
+    q.add_choice("Opção C", True)   # ID 3
+    return q
+
+def test_fixture_choice_count(multiple_choice_question):
+    # testa se a questão criada pela fixture possui exatamente 3 escolhas.
+    assert len(multiple_choice_question.choices) == 3
+
+def test_fixture_select_correct_choices(multiple_choice_question):
+    # testa se, ao selecionar as escolhas, o método retorna somente os IDs das escolhas corretas.
+    selected_ids = multiple_choice_question.select_choices([2, 3])
+    assert selected_ids == [2, 3]
+
+def test_fixture_remove_choice_effect(multiple_choice_question):
+    # remove a escolha com ID 3, que é correta
+    multiple_choice_question.remove_choice_by_id(3)
+    selected_ids = multiple_choice_question.select_choices([2, 3])
+    assert selected_ids == [2]
